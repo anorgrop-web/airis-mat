@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Airis Mat design tokens — mirrored in tailwind.config.ts and lib/constants.ts */
+:root {
+  --color-primary: #6fb7d9;
+  --color-secondary: #6fd9b0;
+  --color-background: #fafcfb;
+  --color-text: #2c3e42;
+  --color-accent: #a8e6c1;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 88px; /* sticky header height + breathing room */
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  ::selection {
+    background: rgba(111, 183, 217, 0.35);
+  }
+}
+
+@layer utilities {
+  /* Infinite horizontal marquee — track content is duplicated in the DOM */
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  .animate-marquee {
+    animation: marquee 32s linear infinite;
+  }
+  .animate-marquee:hover {
+    animation-play-state: paused;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-marquee {
+      animation: none;
+    }
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}

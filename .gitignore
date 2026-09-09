@@ -1,0 +1,14 @@
+node_modules
+.next
+out
+.env*.local
+*.tsbuildinfo
+next-env.d.ts
+.DS_Store
+
+# Raw media sources (served from Cloudflare R2, not part of the app)
+/*.jpg
+/*.jpeg
+/*.png
+/*.mp4
+/criativo 1/
