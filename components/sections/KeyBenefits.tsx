@@ -38,7 +38,7 @@ export default function KeyBenefits() {
 
         <div className="mt-12 text-center">
           <Link
-            href="#technology"
+            href="/#technology"
             className="inline-flex items-center gap-2 text-sm font-semibold text-primary-dark underline-offset-4 hover:underline"
           >
             {KEY_BENEFITS.moreLink}

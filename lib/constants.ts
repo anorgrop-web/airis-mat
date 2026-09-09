@@ -31,7 +31,7 @@ export const BRAND = {
   tagline: "Dry floors. Clear air.",
   logoLabel:
     "Airis Mat logo — circular icon with stylized lungs in blue/green gradient + AIRIS MAT wordmark",
-  email: "hello@airis.eu", // TODO: replace with the real support address
+  email: "support@earendil-commerce.com", // mirrored in lib/legal.ts COMPANY.supportEmail
   reviewCount: "4,000+", // TODO: replace with the real review count
 } as const;
 
@@ -45,11 +45,12 @@ export const PROMO = {
 // ---------------------------------------------------------------------------
 // Navigation
 // ---------------------------------------------------------------------------
+// Absolute hashes ("/#…") so the links also work from the policy pages
 export const NAV_LINKS = [
-  { label: "Overview", href: "#overview" },
-  { label: "Benefits", href: "#benefits" },
-  { label: "Reviews", href: "#reviews" },
-  { label: "FAQ", href: "#faq" },
+  { label: "Overview", href: "/#overview" },
+  { label: "Benefits", href: "/#benefits" },
+  { label: "Reviews", href: "/#reviews" },
+  { label: "FAQ", href: "/#faq" },
 ] as const;
 
 export const CTA = {
@@ -386,17 +387,10 @@ export const GUARANTEE = {
   seal: ASSETS.guaranteeSeal,
 } as const;
 
+// Policy links, support email and legal entity live in lib/legal.ts
 export const FOOTER = {
   description:
     "Natural diatomite stone mats that keep floors dry and homes fresher — designed for modern homes.",
-  links: [
-    { label: "Contact", href: `mailto:${BRAND.email}` },
-    { label: "Privacy Policy", href: "#" }, // TODO: legal pages
-    { label: "Refund Policy", href: "#" },
-    { label: "Shipping Policy", href: "#" },
-    { label: "Terms of Service", href: "#" },
-    { label: "Imprint", href: "#" }, // Required for the German market (Impressum)
-  ],
 } as const;
 
 export const CART_COPY = {

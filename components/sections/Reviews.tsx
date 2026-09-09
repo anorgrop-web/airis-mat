@@ -59,7 +59,7 @@ export default function Reviews() {
             </figcaption>
             <div className="mt-7">
               {/* TODO: analytics — track reviews CTA click */}
-              <Button href="#offer" className="w-full">
+              <Button href="/#offer" className="w-full">
                 {CTA.orderNow}
               </Button>
             </div>

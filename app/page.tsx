@@ -1,4 +1,3 @@
-import Header from "@/components/sections/Header";
 import Hero from "@/components/sections/Hero";
 import FeaturesMarquee from "@/components/sections/FeaturesMarquee";
 import KeyBenefits from "@/components/sections/KeyBenefits";
@@ -11,27 +10,23 @@ import FAQ from "@/components/sections/FAQ";
 import PurchaseCTA from "@/components/sections/PurchaseCTA";
 import BundleSelector from "@/components/sections/BundleSelector";
 import Guarantee from "@/components/sections/Guarantee";
-import Footer from "@/components/sections/Footer";
 
+// Header and Footer are rendered by app/layout.tsx so every page (incl. policies) shares them.
 export default function HomePage() {
   return (
-    <>
-      <Header />
-      <main>
-        <Hero />
-        <FeaturesMarquee />
-        <KeyBenefits />
-        <TechnologyBlocks />
-        <CustomerStats />
-        <ComparisonTable />
-        <SetupSteps />
-        <Reviews />
-        <FAQ />
-        <PurchaseCTA />
-        <BundleSelector />
-        <Guarantee />
-      </main>
-      <Footer />
-    </>
+    <main>
+      <Hero />
+      <FeaturesMarquee />
+      <KeyBenefits />
+      <TechnologyBlocks />
+      <CustomerStats />
+      <ComparisonTable />
+      <SetupSteps />
+      <Reviews />
+      <FAQ />
+      <PurchaseCTA />
+      <BundleSelector />
+      <Guarantee />
+    </main>
   );
 }

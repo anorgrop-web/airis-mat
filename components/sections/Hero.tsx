@@ -115,7 +115,7 @@ export default function Hero() {
 
           <div className="mt-8">
             {/* TODO: analytics — track hero CTA click */}
-            <Button href="#offer" size="lg" className="w-full tracking-wide sm:w-auto sm:min-w-[320px]">
+            <Button href="/#offer" size="lg" className="w-full tracking-wide sm:w-auto sm:min-w-[320px]">
               {PROMO.ctaLabel}
             </Button>
             <p className="mt-3 text-center text-sm text-muted sm:text-left">{HERO.trust}</p>

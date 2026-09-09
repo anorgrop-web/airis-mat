@@ -26,6 +26,41 @@
   }
 }
 
+@layer components {
+  /* Typography for policy pages (components/legal/LegalPage.tsx) */
+  .legal-prose h2 {
+    @apply mt-10 text-xl font-bold tracking-tight text-foreground first:mt-0 sm:text-2xl;
+  }
+  .legal-prose h3 {
+    @apply mt-6 text-base font-semibold text-foreground sm:text-lg;
+  }
+  .legal-prose p {
+    @apply mt-4 leading-relaxed text-muted;
+  }
+  .legal-prose ul,
+  .legal-prose ol {
+    @apply mt-4 space-y-2 pl-6 text-muted;
+  }
+  .legal-prose ul {
+    @apply list-disc;
+  }
+  .legal-prose ol {
+    @apply list-decimal;
+  }
+  .legal-prose li {
+    @apply leading-relaxed;
+  }
+  .legal-prose a {
+    @apply font-medium text-primary-dark underline-offset-4 hover:underline;
+  }
+  .legal-prose strong {
+    @apply font-semibold text-foreground;
+  }
+  .legal-prose code {
+    @apply rounded bg-foreground/5 px-1.5 py-0.5 text-[0.85em] text-foreground;
+  }
+}
+
 @layer utilities {
   /* Infinite horizontal marquee — track content is duplicated in the DOM */
   @keyframes marquee {

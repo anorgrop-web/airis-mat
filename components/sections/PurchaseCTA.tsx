@@ -16,7 +16,7 @@ export default function PurchaseCTA() {
         <p className="mt-4 text-sm text-white/70 sm:text-base">{PURCHASE_CTA.note}</p>
         <div className="mt-8">
           {/* TODO: analytics — track purchase CTA click */}
-          <Button href="#offer" size="lg" className="w-full tracking-wide sm:w-auto sm:min-w-[320px]">
+          <Button href="/#offer" size="lg" className="w-full tracking-wide sm:w-auto sm:min-w-[320px]">
             {PROMO.ctaLabel}
           </Button>
         </div>

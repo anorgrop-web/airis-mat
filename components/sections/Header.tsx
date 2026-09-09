@@ -30,7 +30,7 @@ export default function Header() {
     >
       <Container className="flex h-[68px] items-center justify-between gap-6">
         {/* Logo */}
-        <Link href="#top" className="flex items-center" aria-label={`${BRAND.name} — home`}>
+        <Link href="/#top" className="flex items-center" aria-label={`${BRAND.name} — home`}>
           <Logo className="h-10 sm:h-11" />
         </Link>
 
@@ -50,7 +50,7 @@ export default function Header() {
         <div className="flex items-center gap-2">
           <div className="hidden md:block">
             {/* TODO: analytics — track header CTA click */}
-            <Button href="#offer">{CTA.shopNow}</Button>
+            <Button href="/#offer">{CTA.shopNow}</Button>
           </div>
 
           {/* Cart */}
@@ -97,7 +97,7 @@ export default function Header() {
               </Link>
             ))}
             <div className="mt-2 px-3">
-              <Button href="#offer" className="w-full">
+              <Button href="/#offer" className="w-full">
                 {CTA.shopNow}
               </Button>
             </div>
