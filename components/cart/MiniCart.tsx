@@ -8,10 +8,12 @@ import { CART_COPY, CURRENCY, SHIPPING_NOTE, formatPrice } from "@/lib/constants
 import { trackMetaEvent } from "@/lib/meta";
 import { useCart } from "./CartProvider";
 
-/** Slide-over mini cart. Opens automatically after "Add to cart". */
+/** Slide-over mini cart. Opens automatically after "Add to cart"; Checkout goes to the kit's hosted checkout. */
 export default function MiniCart() {
   const { lines, count, subtotal, isOpen, close, remove } = useCart();
+  const checkoutUrl = lines[0]?.bundle.checkoutUrl;
 
+  // Fires before the browser follows the link; the CAPI call uses keepalive so it survives navigation
   const handleCheckout = () => {
     trackMetaEvent("InitiateCheckout", {
       content_ids: lines.map((l) => l.bundle.id),
@@ -21,7 +23,6 @@ export default function MiniCart() {
       currency: CURRENCY,
       num_items: count,
     });
-    // TODO: checkout integration — navigate to the hosted checkout here
   };
 
   // Close on Escape, lock body scroll while open
@@ -102,8 +103,7 @@ export default function MiniCart() {
                       <p className="font-semibold text-foreground">{formatPrice(bundle.price * qty)}</p>
                     </div>
                     <p className="text-sm text-muted">{bundle.subtitle}</p>
-                    <div className="mt-auto flex items-center justify-between pt-2 text-sm">
-                      <span className="text-muted">Qty {qty}</span>
+                    <div className="mt-auto flex items-center justify-end pt-2 text-sm">
                       <button
                         type="button"
                         onClick={() => remove(bundle.id)}
@@ -123,10 +123,12 @@ export default function MiniCart() {
                 <span className="text-lg font-bold text-foreground">{formatPrice(subtotal)}</span>
               </div>
               <p className="mt-1 text-xs text-muted">{SHIPPING_NOTE}</p>
-              {/* TODO: checkout integration — redirect to the hosted checkout with cart lines */}
-              <Button size="lg" className="mt-4 w-full" onClick={handleCheckout}>
-                {CART_COPY.checkout}
-              </Button>
+              {checkoutUrl && (
+                <Button href={checkoutUrl} size="lg" className="mt-4 w-full" onClick={handleCheckout}>
+                  {CART_COPY.checkout}
+                </Button>
+              )}
+              <p className="mt-3 text-center text-xs text-muted">{CART_COPY.checkoutNote}</p>
             </footer>
           </>
         )}

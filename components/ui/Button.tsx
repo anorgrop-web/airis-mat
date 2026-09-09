@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { ButtonHTMLAttributes, MouseEventHandler, ReactNode } from "react";
 
 type Variant = "primary" | "secondary" | "ghost";
 type Size = "md" | "lg";
@@ -13,7 +13,12 @@ type BaseProps = {
 
 type ButtonAsButton = BaseProps &
   ButtonHTMLAttributes<HTMLButtonElement> & { href?: undefined };
-type ButtonAsLink = BaseProps & { href: string; onClick?: never; type?: never };
+type ButtonAsLink = BaseProps & {
+  href: string;
+  /** Optional side effect (e.g. analytics) — navigation still happens. */
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
+  type?: never;
+};
 
 export type ButtonProps = ButtonAsButton | ButtonAsLink;
 
@@ -41,7 +46,7 @@ export default function Button(props: ButtonProps) {
 
   if (props.href !== undefined) {
     return (
-      <Link href={props.href} className={classes}>
+      <Link href={props.href} onClick={props.onClick} className={classes}>
         {children}
       </Link>
     );

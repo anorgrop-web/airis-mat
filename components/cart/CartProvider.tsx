@@ -19,22 +19,16 @@ type CartContextValue = {
 const CartContext = createContext<CartContextValue | null>(null);
 
 /**
- * UI-only cart state. Lives in memory for the demo.
- * TODO: replace with the real cart (Shopify Storefront API / Stripe / Medusa…)
- * and persist across reloads.
+ * Lightweight cart state, kept in memory.
+ * Each kit has its own hosted checkout page (Bundle.checkoutUrl), so the cart
+ * holds ONE kit at a time: adding a different kit replaces the current one.
  */
 export function CartProvider({ children }: { children: ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
   const [isOpen, setIsOpen] = useState(false);
 
   const add = useCallback((bundle: Bundle) => {
-    setLines((prev) => {
-      const existing = prev.find((l) => l.bundle.id === bundle.id);
-      if (existing) {
-        return prev.map((l) => (l.bundle.id === bundle.id ? { ...l, qty: l.qty + 1 } : l));
-      }
-      return [...prev, { bundle, qty: 1 }];
-    });
+    setLines([{ bundle, qty: 1 }]);
     setIsOpen(true);
   }, []);
 

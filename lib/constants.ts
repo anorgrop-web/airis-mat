@@ -73,6 +73,9 @@ export function formatPrice(amount: number): string {
   }).format(amount);
 }
 
+// Hosted checkout — one page per kit
+export const CHECKOUT_BASE = "https://checkout.earendil-commerce.com";
+
 export type Bundle = {
   id: string;
   name: string;
@@ -83,6 +86,8 @@ export type Bundle = {
   badge?: string;
   imageLabel: string;
   image?: string;
+  /** Hosted checkout page for this kit. */
+  checkoutUrl: string;
 };
 
 export const BUNDLES: Bundle[] = [
@@ -95,6 +100,7 @@ export const BUNDLES: Bundle[] = [
     compareAtPrice: 59.9,
     imageLabel: "Bundle — single Airis Mat, product shot on white",
     image: ASSETS.bundleSingle,
+    checkoutUrl: `${CHECKOUT_BASE}/`,
   },
   {
     id: "kit-duo",
@@ -106,6 +112,7 @@ export const BUNDLES: Bundle[] = [
     badge: "Most popular — extra 10% off",
     imageLabel: "Bundle — Kit Duo, two Airis Mats stacked, product shot on white",
     image: ASSETS.bundleDuo,
+    checkoutUrl: `${CHECKOUT_BASE}/kit-duo`,
   },
   {
     id: "kit-bathroom-plus",
@@ -117,6 +124,7 @@ export const BUNDLES: Bundle[] = [
     badge: "Fresh air bundle — diffuser included",
     imageLabel: "Bundle — Kit Bathroom+, mat with room diffuser, product shot on white",
     image: ASSETS.bundleBathroomPlus,
+    checkoutUrl: `${CHECKOUT_BASE}/kit-bathroom`,
   },
 ];
 
@@ -397,7 +405,8 @@ export const CART_COPY = {
   title: "Cart",
   items: (n: number) => `${n} ${n === 1 ? "item" : "items"}`,
   emptyTitle: "Your cart is empty",
-  emptyText: "Add items to get started",
-  checkout: "Checkout",
+  emptyText: "Choose a kit to get started",
+  checkout: "Proceed to checkout",
+  checkoutNote: "You’ll be taken to our secure checkout to complete your order.",
   subtotal: "Subtotal",
 } as const;
