@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/components/cart/CartProvider";
 import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
-import { BUNDLES, BUNDLE_SECTION, CTA, SHIPPING_NOTE, formatPrice } from "@/lib/constants";
+import { BUNDLES, BUNDLE_SECTION, CTA, CURRENCY, SHIPPING_NOTE, formatPrice } from "@/lib/constants";
+import { trackMetaEvent } from "@/lib/meta";
 
 /** Radio-style bundle cards; the add-to-cart button reflects the selected price. */
 export default function BundleSelector() {
@@ -13,15 +14,47 @@ export default function BundleSelector() {
   const [selectedId, setSelectedId] = useState(defaultId);
   const selected = BUNDLES.find((b) => b.id === selectedId) ?? BUNDLES[0];
   const { add } = useCart();
+  const sectionRef = useRef<HTMLElement>(null);
+
+  // Meta "ViewContent" — fired once, when the offer actually scrolls into view
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        trackMetaEvent("ViewContent", {
+          content_ids: BUNDLES.map((b) => b.id),
+          content_type: "product",
+          content_name: "Airis Mat bundles",
+          value: selected.price,
+          currency: CURRENCY,
+        });
+        observer.disconnect();
+      },
+      { threshold: 0.4 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleAdd = () => {
     // TODO: cart integration — send { bundleId: selected.id, qty: 1 } to the real cart
-    // TODO: analytics — fire "add_to_cart" with bundle id and price
     add(selected);
+    trackMetaEvent("AddToCart", {
+      content_ids: [selected.id],
+      content_name: selected.name,
+      content_type: "product",
+      contents: [{ id: selected.id, quantity: 1, item_price: selected.price }],
+      value: selected.price,
+      currency: CURRENCY,
+      num_items: 1,
+    });
   };
 
   return (
-    <section id="offer" className="bg-white py-20 lg:py-24">
+    <section id="offer" ref={sectionRef} className="bg-white py-20 lg:py-24">
       <Container>
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">{BUNDLE_SECTION.headline}</h2>

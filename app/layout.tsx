@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import MetaPixel from "@/components/analytics/MetaPixel";
 import { CartProvider } from "@/components/cart/CartProvider";
 import MiniCart from "@/components/cart/MiniCart";
 import "./globals.css";
@@ -26,7 +27,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
           <MiniCart />
         </CartProvider>
-        {/* TODO: analytics — inject GA4 / Meta Pixel / Plausible script here (with EU cookie consent) */}
+        {/* Meta Pixel + Conversions API (config in .env.local). TODO: GA4 if needed. */}
+        <MetaPixel />
       </body>
     </html>
   );

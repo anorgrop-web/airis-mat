@@ -4,12 +4,25 @@ import { useEffect } from "react";
 import Button from "@/components/ui/Button";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import { CloseIcon } from "@/components/ui/Icons";
-import { CART_COPY, SHIPPING_NOTE, formatPrice } from "@/lib/constants";
+import { CART_COPY, CURRENCY, SHIPPING_NOTE, formatPrice } from "@/lib/constants";
+import { trackMetaEvent } from "@/lib/meta";
 import { useCart } from "./CartProvider";
 
 /** Slide-over mini cart. Opens automatically after "Add to cart". */
 export default function MiniCart() {
   const { lines, count, subtotal, isOpen, close, remove } = useCart();
+
+  const handleCheckout = () => {
+    trackMetaEvent("InitiateCheckout", {
+      content_ids: lines.map((l) => l.bundle.id),
+      content_type: "product",
+      contents: lines.map((l) => ({ id: l.bundle.id, quantity: l.qty, item_price: l.bundle.price })),
+      value: subtotal,
+      currency: CURRENCY,
+      num_items: count,
+    });
+    // TODO: checkout integration — navigate to the hosted checkout here
+  };
 
   // Close on Escape, lock body scroll while open
   useEffect(() => {
@@ -111,7 +124,7 @@ export default function MiniCart() {
               </div>
               <p className="mt-1 text-xs text-muted">{SHIPPING_NOTE}</p>
               {/* TODO: checkout integration — redirect to the hosted checkout with cart lines */}
-              <Button size="lg" className="mt-4 w-full">
+              <Button size="lg" className="mt-4 w-full" onClick={handleCheckout}>
                 {CART_COPY.checkout}
               </Button>
             </footer>
