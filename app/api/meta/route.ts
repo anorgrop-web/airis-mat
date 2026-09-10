@@ -7,7 +7,9 @@ import type { MetaEventName, MetaEventParams, MetaServerEvent } from "@/lib/meta
  * and forward to the Graph API using the SECRET access token (server only).
  */
 
-const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+// Env first; the hardcoded id is the Airis Mat pixel, kept as fallback (see lib/meta.ts)
+const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "1264497399081223";
+// The access token is a secret and has NO fallback — it must be set in the host's env vars
 const ACCESS_TOKEN = process.env.META_CAPI_ACCESS_TOKEN;
 const API_VERSION = process.env.META_API_VERSION ?? "v23.0";
 const TEST_EVENT_CODE = process.env.META_TEST_EVENT_CODE;
@@ -45,6 +47,7 @@ function stripUndefined<T extends Record<string, unknown>>(obj: T): T {
 
 export async function POST(req: NextRequest) {
   if (!PIXEL_ID || !ACCESS_TOKEN) {
+    console.error("[meta-capi] META_CAPI_ACCESS_TOKEN is not set — server events are being dropped");
     return NextResponse.json({ ok: false, error: "Meta CAPI not configured" }, { status: 503 });
   }
 

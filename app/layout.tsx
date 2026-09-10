@@ -6,6 +6,7 @@ import MiniCart from "@/components/cart/MiniCart";
 import Footer from "@/components/sections/Footer";
 import Header from "@/components/sections/Header";
 import { COMPANY } from "@/lib/legal";
+import { META_PIXEL_ID } from "@/lib/meta";
 import "./globals.css";
 
 const inter = Inter({
@@ -36,9 +37,44 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
+/**
+ * Official Meta Pixel base code, inlined so it runs during HTML parsing —
+ * before hydration and before any React effect that calls fbq().
+ * The initial PageView carries an eventID (window.__metaPageViewId) that
+ * components/analytics/MetaPixel.tsx mirrors to the Conversions API.
+ */
+const META_PIXEL_SNIPPET = `!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '${META_PIXEL_ID}');
+window.__metaPageViewId=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():Date.now()+'-'+Math.random().toString(16).slice(2);
+fbq('track', 'PageView', {}, {eventID: window.__metaPageViewId});`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={inter.variable}>
+      <head>
+        {META_PIXEL_ID && (
+          <>
+            <script id="meta-pixel" dangerouslySetInnerHTML={{ __html: META_PIXEL_SNIPPET }} />
+            <noscript>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                height="1"
+                width="1"
+                style={{ display: "none" }}
+                alt=""
+                src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
+              />
+            </noscript>
+          </>
+        )}
+      </head>
       <body className="min-h-screen font-sans">
         <CartProvider>
           <Header />
@@ -46,7 +82,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Footer />
           <MiniCart />
         </CartProvider>
-        {/* Meta Pixel + Conversions API (config in .env.local). TODO: GA4 if needed. */}
+        {/* Mirrors the initial PageView to the Conversions API and tracks client-side navigations */}
         <MetaPixel />
       </body>
     </html>

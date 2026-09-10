@@ -6,9 +6,18 @@
  *   2. browser  → POST /api/meta → Graph API          (Conversions API, server-side)
  * Meta deduplicates the pair, so reporting stays accurate even when the
  * browser pixel is blocked (ad blockers, iOS, consent tools).
+ *
+ * The pixel base code is injected inline in app/layout.tsx <head>, so `fbq`
+ * exists before any React effect runs. The initial PageView is fired there
+ * with an eventID stored in window.__metaPageViewId; MetaPixel.tsx mirrors it
+ * to the Conversions API on first render.
  */
 
-export const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID ?? "";
+// Env first; the hardcoded id is the Airis Mat pixel, kept as fallback so a
+// missing env var can never silently disable tracking again.
+export const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "1264497399081223";
+
+const IS_DEV = process.env.NODE_ENV !== "production";
 
 export type MetaEventName =
   | "PageView"
@@ -53,10 +62,15 @@ declare global {
   interface Window {
     fbq?: Fbq;
     _fbq?: Fbq;
+    /** eventID of the initial PageView fired by the inline snippet in <head>. */
+    __metaPageViewId?: string;
   }
 }
 
-/** Injects the standard Meta Pixel bootstrap (same as the official snippet, without eval/inline HTML). */
+/**
+ * Injects the standard Meta Pixel bootstrap. No-op when the inline snippet in
+ * app/layout.tsx already ran (window.fbq exists) — kept as a safety net.
+ */
 export function loadMetaPixel(pixelId: string): void {
   if (typeof window === "undefined" || window.fbq) return;
 
@@ -80,7 +94,7 @@ export function loadMetaPixel(pixelId: string): void {
   window.fbq("init", pixelId);
 }
 
-function newEventId(): string {
+export function newMetaEventId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
@@ -96,19 +110,10 @@ function fbcFromUrl(): string | undefined {
   return fbclid ? `fb.1.${Date.now()}.${fbclid}` : undefined;
 }
 
-/**
- * Track an event in the browser pixel AND mirror it to the Conversions API.
- * Safe to call anywhere on the client; no-op during SSR or when the pixel id is missing.
- */
-export function trackMetaEvent(name: MetaEventName, params: MetaEventParams = {}): void {
-  if (typeof window === "undefined" || !META_PIXEL_ID) return;
+/** Server-side mirror only (Conversions API). Use when the browser pixel event was already fired. */
+export function sendMetaServerEvent(name: MetaEventName, eventId: string, params: MetaEventParams = {}): void {
+  if (typeof window === "undefined") return;
 
-  const eventId = newEventId();
-
-  // 1. Browser pixel
-  window.fbq?.("track", name, params, { eventID: eventId });
-
-  // 2. Server mirror (Conversions API)
   const payload: MetaServerEvent = {
     event_name: name,
     event_id: eventId,
@@ -123,7 +128,36 @@ export function trackMetaEvent(name: MetaEventName, params: MetaEventParams = {}
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
     keepalive: true, // survives page unload (e.g. redirect to checkout)
-  }).catch(() => {
-    /* never block the UI on analytics */
-  });
+  })
+    .then((res) => {
+      if (IS_DEV && !res.ok) console.warn(`[meta] /api/meta responded ${res.status} for ${name}`);
+    })
+    .catch((err) => {
+      if (IS_DEV) console.warn(`[meta] /api/meta request failed for ${name}:`, err);
+    });
+}
+
+/**
+ * Track an event in the browser pixel AND mirror it to the Conversions API.
+ * Safe to call anywhere on the client; no-op during SSR.
+ */
+export function trackMetaEvent(name: MetaEventName, params: MetaEventParams = {}): void {
+  if (typeof window === "undefined") return;
+
+  if (!META_PIXEL_ID) {
+    if (IS_DEV) console.warn(`[meta] NEXT_PUBLIC_META_PIXEL_ID is empty — "${name}" not tracked`);
+    return;
+  }
+  if (!window.fbq) {
+    if (IS_DEV) console.warn(`[meta] window.fbq is not defined — "${name}" sent to the Conversions API only`);
+    loadMetaPixel(META_PIXEL_ID); // safety net: bootstrap for the next events
+  }
+
+  const eventId = newMetaEventId();
+
+  // 1. Browser pixel
+  window.fbq?.("track", name, params, { eventID: eventId });
+
+  // 2. Server mirror (Conversions API)
+  sendMetaServerEvent(name, eventId, params);
 }
