@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import MetaPixel from "@/components/analytics/MetaPixel";
 import { CartProvider } from "@/components/cart/CartProvider";
 import MiniCart from "@/components/cart/MiniCart";
@@ -55,6 +56,9 @@ fbq('init', '${META_PIXEL_ID}');
 window.__metaPageViewId=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():Date.now()+'-'+Math.random().toString(16).slice(2);
 fbq('track', 'PageView', {}, {eventID: window.__metaPageViewId});`;
 
+// Microsoft Clarity project id (clarity.microsoft.com > Airis Mat > Settings > Setup).
+const CLARITY_PROJECT_ID = process.env.NEXT_PUBLIC_CLARITY_ID || "ygctu8r7wc";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={inter.variable}>
@@ -74,6 +78,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </noscript>
           </>
         )}
+        {/* Microsoft Clarity — session recordings + heatmaps (project "Airis Mat") */}
+        <Script id="microsoft-clarity" strategy="afterInteractive">
+          {`
+            (function(c,l,a,r,i,t,y){
+              c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+              t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+              y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+            })(window, document, "clarity", "script", "${CLARITY_PROJECT_ID}");
+          `}
+        </Script>
       </head>
       <body className="min-h-screen font-sans">
         <CartProvider>
