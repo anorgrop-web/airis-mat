@@ -1,11 +1,7 @@
 import "server-only";
-import { createHash } from "node:crypto";
+import { hashData } from "@/lib/fb-capi";
 
-/**
- * SHA-256 for Meta "customer information parameters" (email, phone, name…).
- * Meta requires values to be normalized (trimmed, lower-cased) before hashing.
- * Server-only: never hash PII in the browser.
- */
+/** @deprecated — use lib/fb-capi.ts (normalises + hashes). Kept for older imports. */
 export function hashPII(value: string): string {
-  return createHash("sha256").update(value.trim().toLowerCase()).digest("hex");
+  return hashData(value);
 }

@@ -12,6 +12,18 @@ export default function Footer() {
   return (
     <footer className="border-t border-foreground/5 bg-white">
       <Container className="py-14">
+        {/* Four seals (model §6) */}
+        <ul className="mx-auto mb-12 grid max-w-3xl grid-cols-2 gap-3 sm:grid-cols-4">
+          {FOOTER.seals.map((seal) => (
+            <li key={seal.label} className="rounded-2xl bg-foreground px-3 py-4 text-center text-white">
+              <span aria-hidden className="block text-2xl">
+                {seal.icon}
+              </span>
+              <span className="mt-1 block text-[10px] font-bold uppercase tracking-wide">{seal.label}</span>
+            </li>
+          ))}
+        </ul>
+
         <div className="grid gap-10 md:grid-cols-3">
           {/* Brand */}
           <div>

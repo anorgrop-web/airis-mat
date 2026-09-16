@@ -3,10 +3,14 @@
  * Copy is in English (base language) and will later be translated to FR / DE.
  * Keep sentences short and literal so they translate cleanly.
  *
- * Page structure mirrors a proven direct-response layout:
- * Hero (carousel) → Marquee → 8-feature grid → 3 tech blocks → 4 stats →
- * comparison → 3 steps → reviews (1 + 4) → FAQ (9) → dark purchase CTA →
- * bundle selector → guarantee → footer.
+ * Page structure follows the operation's base landing page (TitanChef model):
+ * Header (urgency bar + trust strip) → Hero (carousel with video) → Marquee →
+ * Problem (why fabric mats fail) → 8 benefits → 3 tech blocks (mechanism) →
+ * 4 value cards → comparison → 3 steps → testimonials → reviews (stats + list) →
+ * expert → FAQ → dark purchase CTA → bundle selector (#offer) → guarantee →
+ * footer → fixed conversion bar.
+ *
+ * Offer (2026-09-16): Buy 1, Get 1 Free. Every kit ships at least 2 mats.
  */
 
 import { ASSETS } from "./assets";
@@ -32,15 +36,29 @@ export const BRAND = {
   logoLabel:
     "Airis Mat logo — circular icon with stylized lungs in blue/green gradient + AIRIS MAT wordmark",
   email: "support@earendil-commerce.com", // mirrored in lib/legal.ts COMPANY.supportEmail
-  reviewCount: "4,000+", // TODO: replace with the real review count
+  reviewCount: "4,000+", // [REVISAR] replace with the real review count before traffic
+  ratingValue: "4.8", // [REVISAR] real average rating
+  ratingCount: "1,262", // [REVISAR] real number of written reviews
 } as const;
 
-// Discount used across all CTAs — change in one place
+// The offer, in one place. Percentages are computed per kit (see savePercent).
 export const PROMO = {
-  percent: 30,
-  ctaLabel: "GET 30% OFF NOW",
-  badge: "UP TO 30% OFF — LIMITED TIME",
+  headline: "BUY 1, GET 1 FREE",
+  badge: "BUY 1, GET 1 FREE — LIMITED TIME",
+  ctaLabel: "CLAIM BUY 1, GET 1 FREE",
+  ctaShort: "CHOOSE MY KIT",
+  /** Retail price of ONE mat — anchors every kit ("2 × $59.90 = $119.80"). */
+  unitCompareAt: 59.9,
+  diffuserCompareAt: 39.9,
 } as const;
+
+/** Trust strip under the header (desktop row / mobile marquee). */
+export const HEADER_STRIP = [
+  { icon: "🚚", label: "FREE US SHIPPING" },
+  { icon: "💰", label: "30-DAY MONEY-BACK GUARANTEE" },
+  { icon: "🪨", label: "100% NATURAL DIATOMITE STONE" },
+  { icon: "🎁", label: "BUY 1, GET 1 FREE" },
+] as const;
 
 // ---------------------------------------------------------------------------
 // Navigation
@@ -56,7 +74,7 @@ export const NAV_LINKS = [
 export const CTA = {
   shopNow: "Shop now",
   addToCart: "ADD TO CART",
-  orderNow: `Order now & save ${PROMO.percent}%`,
+  orderNow: "Claim Buy 1, Get 1 Free",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -80,49 +98,67 @@ export type Bundle = {
   id: string;
   name: string;
   subtitle: string;
-  units: number; // number of mats — used for "per mat" price
+  /** Mats that ship in the box (paid + free). */
+  units: number;
+  /** How many of `units` are free. */
+  freeUnits: number;
   price: number;
+  /** Anchor = retail price of every item in the box. */
   compareAtPrice: number;
   badge?: string;
+  /** Short line shown under the name ("2 mats — 1 paid + 1 FREE"). */
+  contents: string;
   imageLabel: string;
   image?: string;
-  /** Hosted checkout page for this kit. */
+  /** Hosted checkout page for this kit (UTMs are appended at click time, see lib/checkout.ts). */
   checkoutUrl: string;
 };
+
+/** "Save 62%" — rounded, computed from the anchor so copy never drifts from the numbers. */
+export function savePercent(b: Pick<Bundle, "price" | "compareAtPrice">): number {
+  return Math.round((1 - b.price / b.compareAtPrice) * 100);
+}
 
 export const BUNDLES: Bundle[] = [
   {
     id: "single",
-    name: "1× Airis Mat",
-    subtitle: "One mat for the bathroom or kitchen",
-    units: 1,
+    name: "Buy 1, Get 1 Free",
+    subtitle: "One for the shower, one for the sink",
+    units: 2,
+    freeUnits: 1,
     price: 44.9,
-    compareAtPrice: 59.9,
-    imageLabel: "Bundle — single Airis Mat, product shot on white",
-    image: ASSETS.bundleSingle,
+    compareAtPrice: 119.8, // 2 × $59.90
+    badge: "Best for one bathroom",
+    contents: "2 mats in the box — 1 paid + 1 FREE",
+    imageLabel: "Bundle — two Airis Mats stacked, product shot on white",
+    image: ASSETS.bundleDuo,
     checkoutUrl: `${CHECKOUT_BASE}/`,
   },
   {
     id: "kit-duo",
-    name: "Kit Duo",
-    subtitle: "2× mats — kitchen + bathroom",
-    units: 2,
+    name: "Buy 2, Get 1 Free",
+    subtitle: "Every bathroom and the kitchen covered",
+    units: 3,
+    freeUnits: 1,
     price: 79.9,
-    compareAtPrice: 119.8,
-    badge: "Most popular — extra 10% off",
-    imageLabel: "Bundle — Kit Duo, two Airis Mats stacked, product shot on white",
-    image: ASSETS.bundleDuo,
+    compareAtPrice: 179.7, // 3 × $59.90
+    badge: "Most popular",
+    contents: "3 mats in the box — 2 paid + 1 FREE",
+    imageLabel: "Bundle — three Airis Mats stacked, product shot on white",
+    image: ASSETS.bundleTrio,
     checkoutUrl: `${CHECKOUT_BASE}/kit-duo`,
   },
   {
     id: "kit-bathroom-plus",
-    name: "Kit Bathroom+",
-    subtitle: "1× bathroom mat + Airis Mat room diffuser",
-    units: 1,
+    name: "Bathroom+ — Buy 1, Get 1 Free + Diffuser",
+    subtitle: "2 mats + Airis stone room diffuser",
+    units: 2,
+    freeUnits: 1,
     price: 69.9,
-    compareAtPrice: 99.8,
-    badge: "Fresh air bundle — diffuser included",
-    imageLabel: "Bundle — Kit Bathroom+, mat with room diffuser, product shot on white",
+    compareAtPrice: 159.7, // 2 × $59.90 + $39.90 diffuser
+    badge: "Fresh air bundle",
+    contents: "2 mats + diffuser in the box — 1 mat FREE",
+    imageLabel: "Bundle — two Airis Mats with room diffuser, product shot on white",
     image: ASSETS.bundleBathroomPlus,
     checkoutUrl: `${CHECKOUT_BASE}/kit-bathroom`,
   },
@@ -134,24 +170,69 @@ export const SHIPPING_NOTE = "Free shipping (5–8 days) • Express 2–3 days:
 // Section copy
 // ---------------------------------------------------------------------------
 export const HERO = {
-  headline: "The bath mat that never stays damp — so mold never gets a start.",
+  headline: "The Bath Mat That Never Stays Damp: No Mold, No Musty Smell, No Washing Machine.",
   subheadline:
-    "Airis Mat absorbs water in seconds and dries on its own. A dry floor, fresher air, and easier breathing at home — no washing, no musty smell.",
+    "Airis Mat absorbs water in seconds and dries on its own within minutes — so there is nothing left for mold to grow on. Right now every kit ships with a second mat free.",
   bullets: [
-    "Absorbs water in seconds",
-    "Fully dry within minutes — nothing left for mold",
-    "Natural diatomite stone, no plastics",
-    "Rinse or sand to clean — no washing machine",
-    "Non-slip base for a steady step",
+    "Dries by itself within minutes",
+    "Nothing left for mold or musty smell to grow on",
+    "Rinse or sand to clean — never wash",
+    "Non-slip natural stone base",
   ],
-  rating: `Excellent — based on ${BRAND.reviewCount} reviews`,
-  trust: "Free shipping • 30-day returns",
+  rating: `${BRAND.ratingValue} | ${BRAND.ratingCount} verified reviews`,
+  customers: `Trusted by ${BRAND.reviewCount} homes`,
+  stock: "In stock — ships within 1–3 business days",
+  trust: "Free US shipping • 30-day money-back guarantee",
+  badges: [
+    { icon: "🪨", label: "NATURAL STONE" },
+    { icon: "🎁", label: "BUY 1, GET 1 FREE" },
+    { icon: "💰", label: "30-DAY GUARANTEE" },
+    { icon: "🚚", label: "FREE US SHIPPING" },
+  ],
+  /** Mixed image/video carousel (padrão técnico §4.1 — the hero always carries video). */
   slides: [
+    { label: "Video — wet footprint disappearing into the stone", src: ASSETS.tech1 },
     { label: "Hero 1 — Airis Mat on a bright bathroom floor, wet footprints fading", src: ASSETS.hero1 },
+    { label: "Video — fresh, bright bathroom", src: ASSETS.stat2 },
     { label: "Hero 2 — close-up of water being absorbed into the stone surface", src: ASSETS.hero2 },
     { label: "Hero 3 — mat in a modern kitchen in front of the sink", src: ASSETS.hero3 },
     { label: "Hero 4 — hand rinsing the mat under a faucet, easy care", src: ASSETS.hero4 },
     { label: "Hero 5 — family stepping off the mat, fresh airy bathroom", src: ASSETS.hero5 },
+    { label: "Split — damp cloth mat vs. dry Airis Mat", src: ASSETS.tech2 },
+  ],
+  avatars: [ASSETS.reviewJennifer, ASSETS.reviewSarah, ASSETS.reviewEmily, ASSETS.reviewDavid],
+} as const;
+
+// ---------------------------------------------------------------------------
+// Problem — why every fabric mat ends up the same way (model: Comparison section)
+// ---------------------------------------------------------------------------
+export const PROBLEM = {
+  marquee: ["30-Day Money-Back Guarantee", "Buy 1, Get 1 Free", "Free US Shipping", "100% Natural Stone"],
+  headline: "Every fabric bath mat ends up the same way.",
+  subheadline:
+    "It is not a cleaning problem. It is a material problem: fabric holds water in the one room where water never stops coming.",
+  items: [
+    {
+      id: "cotton",
+      title: "Cotton & microfiber",
+      text: "Soaks up water at every shower and lies flat on cold tile. The underside never gets air — so it never fully dries, and that is where the smell starts.",
+      imageLabel: "Damp cotton bath mat on a bathroom floor",
+      image: ASSETS.comparisonCloth,
+    },
+    {
+      id: "foam",
+      title: "Memory foam",
+      text: "A sponge with a cover. The foam core stays wet for a day or more, and the musty smell settles into it within weeks — washing does not reach the core.",
+      imageLabel: "Wet memory foam bath mat being squeezed",
+      image: ASSETS.problemFoam,
+    },
+    {
+      id: "rubber",
+      title: "Rubber-backed mats",
+      text: "The backing traps water between the mat and the floor. That dark line along the grout where the mat sits? That is where it lives.",
+      imageLabel: "Rubber-backed mat lifted, water trapped underneath",
+      image: ASSETS.problemRubber,
+    },
   ],
 } as const;
 
@@ -188,6 +269,7 @@ export const TECH_BLOCKS = [
     media: ASSETS.tech1,
   },
   {
+    // TODO(compliance): the advertorials claim antifungal / antibacterial / air-drying — add here ONLY with the supplier report in hand
     id: "mold",
     headline: "Less damp means less mold — and cleaner air.",
     text: "Mold needs moisture to grow. A cloth mat stays wet for hours, and in a cool, humid home — think a cold, humid winter with the windows closed — that is all it takes. Airis Mat never stays wet, so mold has no place to settle. Fewer spores in the room means fresher air for everyone, and especially for people with asthma or sensitive airways.",
@@ -203,14 +285,15 @@ export const TECH_BLOCKS = [
   },
 ] as const;
 
-export const STATS = {
-  headline: "What our customers say after the first 30 days",
-  // TODO: replace with real post-purchase survey data before launch
+// Four value cards (model: Investment section). Replaces the placeholder survey stats.
+export const VALUE = {
+  headline: "One stone mat replaces years of fabric mats.",
+  subheadline: "No washing cycles, no replacing every season, nothing left damp on the floor.",
   items: [
-    { value: "94%", text: "noticed the mat was dry again within minutes", imageLabel: "Stat 1 — dry mat close-up", media: ASSETS.stat1 },
-    { value: "91%", text: "said the musty smell in their bathroom was gone within two weeks", imageLabel: "Stat 2 — fresh bright bathroom", media: ASSETS.stat2 },
-    { value: "89%", text: "with asthma or allergies said they breathe more comfortably at home", imageLabel: "Stat 3 — person breathing calmly by a window", media: ASSETS.stat3 },
-    { value: "96%", text: "would recommend Airis Mat to a friend", imageLabel: "Stat 4 — two friends chatting in a kitchen", media: ASSETS.stat4 },
+    { title: "No washing machine, ever", text: "Rinse it under the tap and stand it upright. That is the whole care routine.", image: ASSETS.icon7, iconLabel: "Icon — faucet with sparkle" },
+    { title: "Dry in minutes, every day", text: "Millions of microscopic pores pull the water in; it evaporates on its own.", image: ASSETS.icon2, iconLabel: "Icon — sun / airflow" },
+    { title: "Nothing for mold to grow on", text: "No fibers, no padding, no wet underside — no damp surface for mold to settle.", image: ASSETS.icon3, iconLabel: "Icon — shield with leaf" },
+    { title: "Sanding pad included", text: "A 30-second pass brings the surface back to new. One mat, years of mornings.", image: ASSETS.icon6, iconLabel: "Icon — footprint with grip" },
   ],
 } as const;
 
@@ -227,6 +310,7 @@ export const COMPARISON = {
     { feature: "No washing machine needed", airis: true, cloth: false },
     { feature: "Natural material, no synthetic fibers", airis: true, cloth: false },
     { feature: "Stays in place — non-slip base", airis: true, cloth: false },
+    { feature: "Free second mat included", airis: true, cloth: false },
   ],
 } as const;
 
@@ -323,6 +407,72 @@ export const REVIEWS = {
   ] as Review[],
 } as const;
 
+/** Judge.me-style summary card above the reviews. [REVISAR] every number before traffic. */
+export const REVIEW_STATS = {
+  rating: BRAND.ratingValue,
+  count: `${BRAND.ratingCount} reviews`,
+  bars: [
+    { stars: 5, percent: 81 },
+    { stars: 4, percent: 14 },
+    { stars: 3, percent: 4 },
+    { stars: 2, percent: 1 },
+    { stars: 1, percent: 0 },
+  ],
+  recommend: "96% of reviewers would recommend Airis Mat to a friend",
+  metrics: [
+    { label: "Dry floor", percent: 97 },
+    { label: "No musty smell", percent: 94 },
+    { label: "Easy care", percent: 98 },
+  ],
+} as const;
+
+/** Three customer stories with photo (model: Testimonials section). [REVISAR] real customers + photos. */
+export const TESTIMONIALS = {
+  headline: "Real bathrooms. Real mornings.",
+  subheadline: "What changed after they swapped the fabric mat for stone.",
+  items: [
+    {
+      id: "t1",
+      name: "Jennifer M.",
+      location: "Austin, TX",
+      quote: "My son has asthma, so I was washing mats constantly. Two weeks in, the musty smell was gone. The floor is dry before I finish brushing my teeth.",
+      imageLabel: "Jennifer kneeling next to the Airis Mat in her bathroom while her son brushes his teeth",
+      image: ASSETS.testimonialJennifer,
+    },
+    {
+      id: "t2",
+      name: "Sarah K.",
+      location: "Denver, CO",
+      quote: "Our apartment bathroom has no window. The old mat never dried — ever. This one is dry every single time, and the second mat went straight to the kitchen sink.",
+      imageLabel: "Sarah standing on the Airis Mat in her windowless apartment bathroom",
+      image: ASSETS.testimonialSarah,
+    },
+    {
+      id: "t3",
+      name: "David L.",
+      location: "Chicago, IL",
+      quote: "Got the Buy 2, Get 1 Free. Splashes at the sink vanish. My wife was skeptical — now she is telling all her friends.",
+      imageLabel: "David at the kitchen sink with the Airis Mat on the floor, his wife beside him",
+      image: ASSETS.testimonialDavid,
+    },
+  ],
+} as const;
+
+/** Authority block (model: Expert section) — same physician as the advertorials (message match). */
+export const EXPERT = {
+  seal: "DEVELOPED WITH AN INFECTIOUS DISEASE PHYSICIAN",
+  cardTitle: "Designed for the bathroom that never dries",
+  cardText: "The apartment bathroom with no window, a fan that barely works and a family that showers back to back — that was the brief.",
+  headline: "Meet the doctor behind Airis Mat",
+  role: "Dr. Oliver Stunk — Infectious Disease Physician",
+  // [REVISAR] Dr. Stunk approves this quote before traffic
+  quote:
+    "The single wettest object in most homes is the bath mat, and it sits on the floor of the smallest closed room in the house. Taking the moisture out of it is the one change that costs almost nothing and removes an entire surface from the equation. That is what we built Airis Mat to do.",
+  name: "Dr. Oliver Stunk",
+  imageLabel: "Portrait — Dr. Oliver Stunk, infectious disease physician",
+  image: ASSETS.expertStunk,
+} as const;
+
 export const FAQ = {
   headline: "Questions? We have the answers",
   items: [
@@ -372,7 +522,13 @@ export const FAQ = {
       id: "diffuser",
       question: "What is included in the Kit Bathroom+?",
       answer:
-        "One Airis Mat for the bathroom, one Airis Mat room diffuser (a compact stone diffuser for essential oils — no electricity needed) and a sanding pad for care.",
+        "Two Airis Mats (one paid, one free), one Airis Mat room diffuser (a compact stone diffuser for essential oils — no electricity needed) and a sanding pad for care.",
+    },
+    {
+      id: "bogo",
+      question: "How does Buy 1, Get 1 Free work?",
+      answer:
+        "Pick a kit, pay for the mats listed as paid and we ship the free one in the same box — no code, nothing to add at checkout. Buy 1, Get 1 Free ships 2 mats; Buy 2, Get 1 Free ships 3. The offer runs while launch stock lasts.",
     },
   ],
 } as const;
@@ -384,8 +540,8 @@ export const PURCHASE_CTA = {
 } as const;
 
 export const BUNDLE_SECTION = {
-  headline: "Choose your package",
-  note: "The bigger the kit, the bigger the savings. Free shipping on every package.",
+  headline: "Choose your kit — the free mat is already in the box",
+  note: "Every kit ships free. Nothing to add at checkout.",
 } as const;
 
 export const GUARANTEE = {
@@ -393,12 +549,33 @@ export const GUARANTEE = {
   text: "Try Airis Mat in your own home. If you're not happy, send it back within 30 days and get a full refund. No questions, no hassle.",
   sealLabel: "Guarantee seal — circular badge '30-day satisfaction guarantee' in brand gradient",
   seal: ASSETS.guaranteeSeal,
+  // Closing box (model: Guarantee section — urgency + stock + CTA)
+  boxImageLabel: "Two Airis Mats — the Buy 1, Get 1 Free kit",
+  boxImage: ASSETS.bundleDuo,
+  stockText: "Launch stock is limited — the free mat ends when it runs out.",
+  stockPercent: 74,
+  inStock: "In stock and ready to ship",
+  closing: "Try it for 30 days with a full money-back guarantee.",
 } as const;
 
 // Policy links, support email and legal entity live in lib/legal.ts
 export const FOOTER = {
   description:
     "Natural diatomite stone mats that keep floors dry and homes fresher — designed for modern homes.",
+  seals: [
+    { icon: "🪨", label: "NATURAL STONE" },
+    { icon: "🎁", label: "BUY 1, GET 1 FREE" },
+    { icon: "💰", label: "30-DAY GUARANTEE" },
+    { icon: "🚚", label: "FREE US SHIPPING" },
+  ],
+} as const;
+
+/** Sticky bottom bar (model: FixedConversionBar). */
+export const FIXED_BAR = {
+  imageLabel: "Airis Mat kit thumbnail",
+  image: ASSETS.bundleDuo,
+  label: "BUY 1, GET 1 FREE",
+  sub: "Free US shipping • 30-day guarantee",
 } as const;
 
 export const CART_COPY = {

@@ -9,6 +9,15 @@ export function asset(fileName: string): string {
   return `${R2_BASE}/${encodeURIComponent(fileName)}`;
 }
 
+/**
+ * Images generated for the Buy 1, Get 1 Free launch (AdsSystem / Nanobanana),
+ * uploaded to the bucket under "airis map/bogo/" on 2026-09-16. A copy of each
+ * file also ships in public/images/bogo/ as a fallback.
+ */
+export function local(fileName: string): string {
+  return `${R2_BASE}/bogo/${encodeURIComponent(fileName)}`;
+}
+
 export const ASSETS = {
   // Brand
   logo: asset("logomarca.jpeg_2K_202609081539.jpeg"),
@@ -57,10 +66,24 @@ export const ASSETS = {
   reviewEmily: asset("Emilly T.jpeg"),
   reviewDavid: asset("David L.jpeg"),
 
-  // Bundles
-  bundleSingle: asset("single Airis stone mat, produ.png"),
-  bundleDuo: asset("two Airis mats stacked, product.jpeg"),
-  bundleBathroomPlus: asset("mat with room diffuser, product.jpeg"),
+  // Bundles (Buy 1, Get 1 Free offer — every kit ships at least 2 mats)
+  bundleSingle: asset("single Airis stone mat, produ.png"), // kept for the checkout / legacy references
+  bundleDuo: asset("two Airis mats stacked, product.jpeg"), // "Buy 1, Get 1 Free" = 2 mats
+  bundleTrio: local("three-mats-stacked.jpg"), // "Buy 2, Get 1 Free" = 3 mats
+  bundleBathroomPlus: local("two-mats-diffuser.jpg"), // Bathroom+ = 2 mats + diffuser
+  bundleBathroomPlusLegacy: asset("mat with room diffuser, product.jpeg"),
+
+  // "Why every fabric mat ends up the same way" (problem section)
+  problemFoam: local("problem-memory-foam.jpg"),
+  problemRubber: local("problem-rubber-backed.jpg"),
+
+  // Expert section
+  expertStunk: local("dr-oliver-stunk.jpg"),
+
+  // Testimonials — customer WITH the mat in the scene (not selfies)
+  testimonialJennifer: local("testimonial-jennifer.jpg"),
+  testimonialSarah: local("testimonial-sarah.jpg"),
+  testimonialDavid: local("testimonial-david.jpg"),
 
   // Guarantee seal
   guaranteeSeal: asset("garantia 30 dias.png"),

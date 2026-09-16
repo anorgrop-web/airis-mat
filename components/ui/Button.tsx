@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ButtonHTMLAttributes, MouseEventHandler, ReactNode } from "react";
 
-type Variant = "primary" | "secondary" | "ghost";
+type Variant = "primary" | "secondary" | "ghost" | "buy" | "urgent";
 type Size = "md" | "lg";
 
 type BaseProps = {
@@ -33,6 +33,10 @@ const variants: Record<Variant, string> = {
   secondary: "bg-foreground text-white hover:bg-[#1F2F33] active:bg-foreground",
   ghost:
     "border border-foreground/15 bg-white/70 text-foreground hover:border-primary hover:text-primary-dark",
+  /** Purchase CTA — solid emerald, as in the operation's base page. */
+  buy: "bg-emerald-600 text-white shadow-soft hover:bg-emerald-700 active:bg-emerald-800",
+  /** Urgency (fixed bar) — red. */
+  urgent: "bg-red-600 text-white shadow-soft hover:bg-red-700 active:bg-red-800",
 };
 
 const sizes: Record<Size, string> = {

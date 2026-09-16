@@ -38,6 +38,7 @@ export default function RefundPolicyPage() {
         Return shipping is paid by you, unless the item arrived damaged, defective or incorrect (see section 3). Once we
         receive and inspect the return, we issue your refund.
       </p>
+      <p>{POLICY.bogoReturns}</p>
 
       <h2>3. Damaged, Defective or Incorrect Items</h2>
       <p>

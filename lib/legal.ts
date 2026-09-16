@@ -44,12 +44,16 @@ export const POLICY = {
   processingTimePeak: "5 business days",
   standardShipping: { label: "Standard", cost: "Free", time: "5–8 business days" },
   expressShipping: { label: "Express", cost: "$9.90", time: "2–3 business days" },
-  destinations: ["United States", "Canada"], // TODO: confirm the exact list of countries you ship to
+  destinations: ["United States"],
   trackingGraceDays: 5,
   currency: "USD",
-  paymentProcessor: "Stripe", // TODO: confirm once the checkout provider is chosen
+  paymentProcessor: "Stripe",
   minimumAge: 18,
   childrenAge: 16,
   orderDataRetentionYears: 5,
   analyticsRetentionMonths: 26,
+  /** Retail value of the free mat in Buy 1, Get 1 Free kits (deducted on partial returns). */
+  freeItemValue: "$59.90",
+  bogoReturns:
+    "Kits sold as Buy 1, Get 1 Free are refunded in full when every mat in the kit is returned. If only the paid mat is returned, the refund is the kit price minus the retail value of the free mat ($59.90).",
 } as const;

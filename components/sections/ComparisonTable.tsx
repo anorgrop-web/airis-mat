@@ -69,8 +69,7 @@ export default function ComparisonTable() {
         </div>
 
         <div className="mt-10 text-center">
-          {/* TODO: analytics — track comparison CTA click */}
-          <Button href="/#offer" size="lg" className="w-full tracking-wide sm:w-auto sm:min-w-[320px]">
+          <Button href="/#offer" variant="buy" size="lg" className="w-full tracking-wide sm:w-auto sm:min-w-[340px]">
             {PROMO.ctaLabel}
           </Button>
         </div>

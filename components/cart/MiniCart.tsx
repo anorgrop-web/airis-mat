@@ -1,28 +1,47 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { trackHybridEvent } from "@/components/tracking/hybrid-tracker";
 import Button from "@/components/ui/Button";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import { CloseIcon } from "@/components/ui/Icons";
-import { CART_COPY, CURRENCY, SHIPPING_NOTE, formatPrice } from "@/lib/constants";
-import { trackMetaEvent } from "@/lib/meta";
+import { buildCheckoutUrl, newEventId } from "@/lib/checkout";
+import { BRAND, CART_COPY, CURRENCY, SHIPPING_NOTE, formatPrice } from "@/lib/constants";
 import { useCart } from "./CartProvider";
 
-/** Slide-over mini cart. Opens automatically after "Add to cart"; Checkout goes to the kit's hosted checkout. */
+/**
+ * Slide-over mini cart. Opens automatically after "Add to cart"; Checkout goes to
+ * the kit's hosted checkout WITH the incoming utm_* / fbclid / adv params appended
+ * (lib/checkout.ts), so attribution survives the hop to the checkout domain.
+ */
 export default function MiniCart() {
   const { lines, count, subtotal, isOpen, close, remove } = useCart();
-  const checkoutUrl = lines[0]?.bundle.checkoutUrl;
+  const baseUrl = lines[0]?.bundle.checkoutUrl;
+  const [checkoutUrl, setCheckoutUrl] = useState<string | undefined>(baseUrl);
+
+  // Rebuilt on the client (window.location) — the server render keeps the plain URL
+  useEffect(() => {
+    setCheckoutUrl(baseUrl ? buildCheckoutUrl(baseUrl, "cart") : undefined);
+  }, [baseUrl, isOpen]);
 
   // Fires before the browser follows the link; the CAPI call uses keepalive so it survives navigation
   const handleCheckout = () => {
-    trackMetaEvent("InitiateCheckout", {
-      content_ids: lines.map((l) => l.bundle.id),
-      content_type: "product",
-      contents: lines.map((l) => ({ id: l.bundle.id, quantity: l.qty, item_price: l.bundle.price })),
-      value: subtotal,
-      currency: CURRENCY,
-      num_items: count,
-    });
+    void trackHybridEvent(
+      "InitiateCheckout",
+      {
+        content_ids: lines.map((l) => l.bundle.id),
+        content_name: lines.map((l) => l.bundle.name).join(", "),
+        content_type: "product",
+        content_category: "lp_cart",
+        contents: lines.map((l) => ({ id: l.bundle.id, quantity: l.qty, item_price: l.bundle.price })),
+        value: subtotal,
+        currency: CURRENCY,
+        num_items: count,
+        items: lines.map((l) => ({ item_id: l.bundle.id, item_name: l.bundle.name, item_brand: BRAND.name, price: l.bundle.price, quantity: l.qty })),
+      },
+      {},
+      newEventId("ic"),
+    );
   };
 
   // Close on Escape, lock body scroll while open
@@ -103,6 +122,7 @@ export default function MiniCart() {
                       <p className="font-semibold text-foreground">{formatPrice(bundle.price * qty)}</p>
                     </div>
                     <p className="text-sm text-muted">{bundle.subtitle}</p>
+                    <p className="mt-1 text-xs font-semibold text-emerald-700">{bundle.contents}</p>
                     <div className="mt-auto flex items-center justify-end pt-2 text-sm">
                       <button
                         type="button"
@@ -124,7 +144,7 @@ export default function MiniCart() {
               </div>
               <p className="mt-1 text-xs text-muted">{SHIPPING_NOTE}</p>
               {checkoutUrl && (
-                <Button href={checkoutUrl} size="lg" className="mt-4 w-full" onClick={handleCheckout}>
+                <Button href={checkoutUrl} variant="buy" size="lg" className="mt-4 w-full" onClick={handleCheckout}>
                   {CART_COPY.checkout}
                 </Button>
               )}
