@@ -6,9 +6,9 @@
 
 export const COMPANY = {
   brand: "Airis Mat",
-  legalName: "LASCAR NEGÓCIOS DIGITAIS LTDA",
-  cnpj: "64.618.871/0001-56",
-  address: "R. Capitão José Maria, 1634, Sala 202, Centro, Linhares - ES, CEP 29900-172, Brasil",
+  legalName: "69.120.977 CINTIA MARA NETO GOMES",
+  cnpj: "69.120.977/0001-49",
+  address: "Rua Rio Grande do Sul, 108, Jockey de Itaparica, Vila Velha - ES, CEP 29103-895, Brasil",
   supportEmail: "support@earendil-commerce.com",
   responseTime: "24–48 hours",
   siteUrl: "https://airis.earendil-commerce.com",
