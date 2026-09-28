@@ -169,26 +169,49 @@ export const SHIPPING_NOTE = "Free shipping (5–8 days) • Express 2–3 days:
 // ---------------------------------------------------------------------------
 // Section copy
 // ---------------------------------------------------------------------------
+/**
+ * Hero = e-commerce buy box (US product-page pattern, benchmarked on BeyondBaths
+ * and Modrnizd, 2026-09-28): gallery → stars → product name → price + strikethrough
+ * + "Save %" → size → bundle picker → Add to cart → delivery window → payment
+ * icons → trust list → short benefit list.
+ */
 export const HERO = {
-  headline: "The Bath Mat That Never Stays Damp: No Mold, No Musty Smell, No Washing Machine.",
-  subheadline:
-    "Airis Mat absorbs water in seconds and dries on its own within minutes — so there is nothing left for mold to grow on. Right now every kit ships with a second mat free.",
+  /** Product name (H1) — short, like a store listing. */
+  headline: "Airis Stone Bath Mat",
+  /** One-line promise under the name (Modrnizd: "Instant absorption. Quick drying. Always fresh."). */
+  subheadline: "Dries in minutes. No mold, no musty smell, no washing machine.",
+  bulletsTitle: `Why ${BRAND.reviewCount} homes made the switch`,
   bullets: [
     "Dries by itself within minutes",
     "Nothing left for mold or musty smell to grow on",
     "Rinse or sand to clean — never wash",
     "Non-slip natural stone base",
   ],
-  rating: `${BRAND.ratingValue} | ${BRAND.ratingCount} verified reviews`,
+  ratingValue: BRAND.ratingValue,
+  ratingLabel: `${BRAND.ratingCount} reviews`,
   customers: `Trusted by ${BRAND.reviewCount} homes`,
   stock: "In stock — ships within 1–3 business days",
-  trust: "Free US shipping • 30-day money-back guarantee",
-  badges: [
-    { icon: "🪨", label: "NATURAL STONE" },
-    { icon: "🎁", label: "BUY 1, GET 1 FREE" },
-    { icon: "💰", label: "30-DAY GUARANTEE" },
-    { icon: "🚚", label: "FREE US SHIPPING" },
-  ],
+  /**
+   * The only size we sell (60 × 39 cm, ~9 mm — FAQ "size" and the checkout).
+   * Shown in inches first, the way US stores list it ("Small (16" x 24")").
+   */
+  size: {
+    name: "Standard",
+    inches: '15.4" × 23.6"',
+    detail: '39 × 60 cm · 0.35" thick · fits most bathrooms and kitchen sinks',
+  },
+  bundleLabel: "Bundle",
+  /**
+   * Delivery window = processing (1–3 business days) + standard shipping
+   * (5–8 business days), from POLICY in lib/legal.ts.
+   */
+  delivery: { prefix: "Free delivery", minBusinessDays: 6, maxBusinessDays: 11 },
+  trustList: [
+    { icon: "users", label: `Trusted by ${BRAND.reviewCount} homes` },
+    { icon: "truck", label: "Free US shipping on every kit" },
+    { icon: "shield", label: "30-day money-back guarantee" },
+    { icon: "stone", label: "100% natural diatomite stone" },
+  ] as { icon: "users" | "truck" | "shield" | "stone"; label: string }[],
   /** Mixed image/video carousel (padrão técnico §4.1 — the hero always carries video). */
   slides: [
     { label: "Video — wet footprint disappearing into the stone", src: ASSETS.tech1 },
